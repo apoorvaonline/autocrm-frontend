@@ -20,9 +20,9 @@ export function Button({
   const widthStyles = fullWidth ? 'w-full' : '';
   
   const variantStyles = {
-    primary: 'bg-[#781E28] text-white hover:opacity-90',
-    secondary: 'border border-[#781E28] text-[#781E28] hover:bg-[#FFF6F1]',
-    text: 'text-[#9F5C5D] hover:bg-[#FFF6F1]',
+    primary: `bg-[${theme.colors.primary.main}] text-white hover:opacity-90`,
+    secondary: `border border-[${theme.colors.primary.main}] text-[${theme.colors.primary.main}] hover:bg-[${theme.colors.primary.background}]`,
+    text: `text-[${theme.colors.primary.text}] hover:bg-[${theme.colors.primary.background}]`,
   };
 
   return (

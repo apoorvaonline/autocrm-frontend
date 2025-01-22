@@ -19,18 +19,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-[#781E28] text-white shadow-md">
+      <header className={`bg-[${theme.colors.primary.main}] text-white shadow-md`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">AutoCRM</h1>
             <div className="flex items-center gap-4">
-              <span className="text-[#FFF6F1]">
+              <span className={`text-[${theme.colors.primary.background}]`}>
                 {user?.email}
               </span>
               <Button 
                 variant="secondary" 
                 onClick={handleSignOut}
-                className="bg-white hover:bg-[#FFF6F1] border-white text-[#781E28]"
+                className={`bg-white hover:bg-[${theme.colors.primary.background}] border-white text-[${theme.colors.primary.main}]`}
               >
                 Sign Out
               </Button>

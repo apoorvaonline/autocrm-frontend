@@ -89,7 +89,7 @@ export function CreateTicket() {
             value={formData.description}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#781E28]/20 focus:border-[#781E28] min-h-[150px]"
+            className={`w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[${theme.colors.primary.main}]/20 focus:border-[${theme.colors.primary.main}] min-h-[150px]`}
           />
         </div>
 
@@ -110,7 +110,7 @@ export function CreateTicket() {
             name="priority"
             value={formData.priority}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#781E28]/20 focus:border-[#781E28]"
+            className={`w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[${theme.colors.primary.main}]/20 focus:border-[${theme.colors.primary.main}]`}
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
