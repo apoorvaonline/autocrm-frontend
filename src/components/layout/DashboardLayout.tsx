@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../shared/Button';
-import { theme } from '../../config/theme';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,18 +18,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className={`bg-[${theme.colors.primary.main}] text-white shadow-md`}>
+      <header className="bg-[#781E28] text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">AutoCRM</h1>
             <div className="flex items-center gap-4">
-              <span className={`text-[${theme.colors.primary.background}]`}>
+              <span className="text-[#FFF6F1]">
                 {user?.email}
               </span>
               <Button 
                 variant="secondary" 
                 onClick={handleSignOut}
-                className={`bg-white hover:bg-[${theme.colors.primary.background}] border-white text-[${theme.colors.primary.main}]`}
+                className="bg-white hover:bg-[#FFF6F1] border-white text-[#781E28]"
               >
                 Sign Out
               </Button>
