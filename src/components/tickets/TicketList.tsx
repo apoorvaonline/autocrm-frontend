@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Ticket, ticketService } from '../../services/ticketService';
 import { Button } from '../shared/Button';
 import { theme } from '../../config/theme';
@@ -67,7 +68,12 @@ export function TicketList() {
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-semibold text-lg">{ticket.subject}</h3>
+                <Link 
+                  to={`/tickets/${ticket.id}`}
+                  className="font-semibold text-lg hover:text-[#781E28] transition-colors"
+                >
+                  {ticket.subject}
+                </Link>
                 <p className="text-sm text-gray-600">
                   From: {ticket.customer?.full_name} ({ticket.customer?.email})
                 </p>
@@ -104,6 +110,10 @@ export function TicketList() {
                 <Button variant="secondary" onClick={() => {}}>
                   Assign
                 </Button>
+
+                <Link to={`/tickets/${ticket.id}`}>
+                  <Button variant="primary">View Details</Button>
+                </Link>
               </div>
             </div>
           </div>

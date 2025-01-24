@@ -73,13 +73,15 @@ export function SignIn() {
           />
 
           <Button type="submit" loading={loading} fullWidth>
-            Sign In
+            <div className="w-full flex justify-center">
+              Sign In
+            </div>
           </Button>
         </form>
 
         <div className="mt-4 text-center">
           <Button
-            variant="text"
+            variant="tertiary"
             onClick={() => navigate('/signup')}
           >
             Don't have an account? Sign Up
