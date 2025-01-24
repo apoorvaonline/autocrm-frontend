@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabase";
+import { ticketRoutingService } from "./ticketRoutingService";
 
 export interface Ticket {
   id: string;
@@ -119,6 +120,7 @@ export const ticketService = {
     if (!user) throw new Error("User not authenticated");
 
     const category = classifyTicket(data.subject, data.description);
+
     const { data: ticket, error } = await supabase
       .from("tickets")
       .insert([
@@ -138,6 +140,48 @@ export const ticketService = {
     // If SLA policy is set, calculate due dates
     if (ticket.sla_policy_id) {
       await this.calculateSLADueDates(ticket.id, ticket.sla_policy_id);
+    }
+
+    // Fetch all active team assignment rules
+    const { data: rules, error: rulesError } = await supabase
+      .from("team_assignment_rules")
+      .select("*")
+      .eq("is_active", true)
+      .order("priority", { ascending: false });
+
+    if (rulesError) throw rulesError;
+
+    // Find the first matching rule
+    const matchingRule = rules.find((rule) => {
+      const conditions = rule.conditions || {};
+
+      // Check category condition
+      if (conditions.category && !conditions.category.includes(category)) {
+        return false;
+      }
+
+      // Check priority condition
+      if (conditions.priority && !conditions.priority.includes(data.priority)) {
+        return false;
+      }
+
+      // Check source condition
+      if (conditions.source && !conditions.source.includes("web")) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // If a matching rule is found, assign the ticket to the team
+    if (matchingRule) {
+      await ticketRoutingService.assignTicketToTeam(
+        ticket.id,
+        matchingRule.team_id,
+        `Automatically assigned based on rule: ${matchingRule.name}`
+      );
+    } else {
+      console.error("No matching rule found for ticket assignment");
     }
 
     return ticket;
@@ -193,6 +237,31 @@ export const ticketService = {
   },
 
   async getEmployeeTickets() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("User not authenticated");
+
+    const { data: tickets, error } = await supabase
+      .from("tickets")
+      .select(
+        `
+        *,
+        customer:users!customer_id(full_name, email),
+        assigned_to:users!assigned_to(full_name),
+        team:teams(name)
+      `
+      )
+      .or(`assigned_to.eq.${user.id}`) // Tickets directly assigned to the employee
+      .or("status.neq.closed,status.neq.resolved")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return tickets;
+  },
+
+  async getAllTickets() {
     const { data: tickets, error } = await supabase
       .from("tickets")
       .select(

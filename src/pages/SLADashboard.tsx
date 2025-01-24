@@ -23,6 +23,54 @@ interface TeamBreachData {
   compliance_rate: number;
 }
 
+interface TicketData {
+  id: string;
+  created_at: string;
+  first_response_at: string | null;
+  status: string;
+  priority: string;
+  team_id: string;
+  teams: {
+    name: string;
+  } | null;
+}
+
+interface BreachData {
+  ticket_id: string;
+  breach_type: 'response_time' | 'resolution_time';
+  tickets: {
+    priority: string;
+    team_id: string;
+    teams: {
+      name: string;
+    } | null;
+  };
+}
+
+interface SupabaseBreachData {
+  ticket_id: string;
+  breach_type: string;
+  tickets: {
+    priority: string;
+    team_id: string;
+    teams: {
+      name: string;
+    } | null;
+  };
+}
+
+interface SupabaseTicketData {
+  id: string;
+  created_at: string;
+  first_response_at: string | null;
+  status: string;
+  priority: string;
+  team_id: string;
+  teams: {
+    name: string;
+  } | null;
+}
+
 export const SLADashboard = () => {
   const [metrics, setMetrics] = useState<SLAMetrics | null>(null);
   const [teamData, setTeamData] = useState<TeamBreachData[]>([]);
@@ -52,7 +100,7 @@ export const SLADashboard = () => {
           )
         `)
         .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString());
+        .lte('created_at', endDate.toISOString()) as { data: SupabaseBreachData[] | null, error: any };
 
       if (breachError) throw breachError;
 
@@ -70,7 +118,7 @@ export const SLADashboard = () => {
         `)
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString())
-        .not('sla_policy_id', 'is', null);
+        .not('sla_policy_id', 'is', null) as { data: SupabaseTicketData[] | null, error: any };
 
       if (ticketError) throw ticketError;
 
@@ -92,7 +140,7 @@ export const SLADashboard = () => {
       const breachByTeam: Record<string, number> = {};
       const teamBreaches: Record<string, { total: number, response: number, resolution: number, tickets: number }> = {};
 
-      breachData?.forEach(breach => {
+      breachData?.forEach((breach) => {
         const ticket = breach.tickets;
         const team = ticket.teams;
 
@@ -124,7 +172,7 @@ export const SLADashboard = () => {
           total_breaches: data.total,
           response_breaches: data.response,
           resolution_breaches: data.resolution,
-          compliance_rate: ((teamTickets - data.total) / teamTickets) * 100
+          compliance_rate: teamTickets > 0 ? ((teamTickets - data.total) / teamTickets) * 100 : 0
         };
       });
 
@@ -159,19 +207,19 @@ export const SLADashboard = () => {
         <h1 className="text-2xl font-bold">SLA Performance Dashboard</h1>
         <div className="flex gap-2">
           <Button
-            variant={dateRange === 7 ? 'primary' : 'outline'}
+            variant="primary"
             onClick={() => setDateRange(7)}
           >
             7 Days
           </Button>
           <Button
-            variant={dateRange === 30 ? 'primary' : 'outline'}
+            variant="secondary"
             onClick={() => setDateRange(30)}
           >
             30 Days
           </Button>
           <Button
-            variant={dateRange === 90 ? 'primary' : 'outline'}
+            variant="secondary"
             onClick={() => setDateRange(90)}
           >
             90 Days

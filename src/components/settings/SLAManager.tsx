@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Button } from "../shared/Button";
 import { Loader2 } from "lucide-react";
 import { slaService, type SLAPolicy } from "../../services/slaService";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../context/AuthContext";
 
 interface SLAModalProps {
   policy?: SLAPolicy;

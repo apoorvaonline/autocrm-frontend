@@ -7,12 +7,14 @@ import { SLAStatusIndicator } from './SLAStatusIndicator';
 import { formatDistanceToNow } from 'date-fns';
 import { TicketCommunication } from './TicketCommunication';
 import { Button } from '../shared/Button';
+import { useAuth } from '../../context/AuthContext';
 
 export function TicketDetails() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const [ticket, setTicket] = useState<TicketWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const { isEmployee } = useAuth();
+  
   useEffect(() => {
     if (ticketId) {
       loadTicket();
@@ -86,19 +88,23 @@ export function TicketDetails() {
               <div>
                 Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
               </div>
-              <div>
-                Assigned to: {ticket.assigned_to?.full_name || 'Unassigned'} 
-                {ticket.team && ` (${ticket.team.name})`}
-              </div>
+              {isEmployee && (
+                <div>
+                  Assigned to: {ticket.assigned_to?.full_name || 'Unassigned'} 
+                    {ticket.team && ` (${ticket.team.name})`}
+                </div>
+              )}
             </div>
+            {isEmployee && (
             <div>
-              <SLAStatusIndicator 
-                responseDeadline={ticket.sla_response_due_at}
-                resolutionDeadline={ticket.sla_resolution_due_at}
-                firstResponseAt={ticket.first_response_at}
-                status={ticket.status}
-              />
-            </div>
+                <SLAStatusIndicator 
+                  responseDeadline={ticket.sla_response_due_at}
+                  resolutionDeadline={ticket.sla_resolution_due_at}
+                  firstResponseAt={ticket.first_response_at}
+                  status={ticket.status}
+                />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

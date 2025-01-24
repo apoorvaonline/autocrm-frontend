@@ -30,6 +30,86 @@ export interface TicketAssignment {
   created_at: string;
 }
 
+interface TeamMember {
+  user_id: string;
+  team_id: string;
+  role: string;
+}
+
+async function getActiveTeamMembers(teamId: string): Promise<TeamMember[]> {
+  const { data: members, error } = await supabase
+    .from("team_members")
+    .select("user_id, team_id, role")
+    .eq("team_id", teamId)
+    .eq("role", "member"); // Try using eq instead of neq
+
+  if (error) {
+    console.error("Error fetching team members:", error);
+    throw error;
+  }
+  return members || [];
+}
+
+async function getLastAssignedMember(teamId: string): Promise<string | null> {
+  const { data: assignments, error } = await supabase
+    .from("ticket_assignments")
+    .select("assigned_to")
+    .eq("new_team_id", teamId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) throw error;
+  return assignments?.[0]?.assigned_to || null;
+}
+
+async function assignTicketToNextTeamMember(
+  ticketId: string,
+  teamId: string
+): Promise<void> {
+  const members = await getActiveTeamMembers(teamId);
+
+  if (!members.length) {
+    return;
+  }
+
+  const lastAssignedMember = await getLastAssignedMember(teamId);
+
+  // Find the next member in rotation
+  let nextMemberIndex = 0;
+  if (lastAssignedMember) {
+    const currentIndex = members.findIndex(
+      (m) => m.user_id === lastAssignedMember
+    );
+    nextMemberIndex = (currentIndex + 1) % members.length;
+  }
+
+  const nextMember = members[nextMemberIndex];
+
+  // Get the authenticated user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("User not authenticated");
+
+  // Record the assignment
+  const { error: assignmentError } = await supabase.rpc(
+    "assign_ticket_to_team",
+    {
+      _ticket_id: ticketId,
+      _team_id: teamId,
+      _assigned_by: user.id,
+      _assigned_to: nextMember.user_id,
+      _reason: "Automatically assigned via round-robin",
+    }
+  );
+
+  if (assignmentError) {
+    console.error("Error recording assignment:", assignmentError);
+    throw assignmentError;
+  }
+}
+
 export const ticketRoutingService = {
   async getTeamAssignmentRules(teamId: string): Promise<TeamAssignmentRule[]> {
     const { data: rules, error } = await supabase
@@ -90,14 +170,19 @@ export const ticketRoutingService = {
 
     if (!user) throw new Error("User not authenticated");
 
+    // First assign to team without a member
     const { error } = await supabase.rpc("assign_ticket_to_team", {
       _ticket_id: ticketId,
       _team_id: teamId,
       _assigned_by: user.id,
-      _reason: reason,
+      _reason: reason || "Initial team assignment",
+      _assigned_to: null,
     });
 
     if (error) throw error;
+
+    // Then assign to a team member
+    await assignTicketToNextTeamMember(ticketId, teamId);
   },
 
   async getTicketAssignmentHistory(

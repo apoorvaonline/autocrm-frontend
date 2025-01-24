@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../shared/Card';
+// import { Card, CardContent, CardHeader, CardTitle } from '../shared/Card';
 import { Button } from '../shared/Button';
 import { Loader2, Paperclip, X, Download } from 'lucide-react';
 import { attachmentService, type Attachment } from '../../services/attachmentService';
@@ -15,7 +15,7 @@ export function TicketAttachments({ ticketId, messageId, onAttachmentAdded }: Pr
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
   useEffect(() => {
     loadAttachments();
@@ -85,7 +85,7 @@ export function TicketAttachments({ ticketId, messageId, onAttachmentAdded }: Pr
       {/* File Upload */}
       <div className="flex items-center gap-2">
         <Button
-          variant="outline"
+          variant="tertiary"
           onClick={() => document.getElementById('file-upload')?.click()}
           disabled={uploading}
         >
@@ -123,15 +123,15 @@ export function TicketAttachments({ ticketId, messageId, onAttachmentAdded }: Pr
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="tertiary"
                   onClick={() => window.open(attachmentService.getFileUrl(attachment.storage_path), '_blank')}
                   className="p-1"
                 >
                   <Download className="h-4 w-4" />
                 </Button>
-                {(user?.role === 'admin' || attachment.uploaded_by === user?.id) && (
+                {(userRole === 'admin' || attachment.uploaded_by === user?.id) && (
                   <Button
-                    variant="outline"
+                    variant="tertiary"
                     onClick={() => handleDelete(attachment.id)}
                     className="p-1"
                   >

@@ -26,11 +26,9 @@ export function ManageTeamMembersModal({ team, onClose }: ManageTeamMembersModal
   const [addingError, setAddingError] = useState('');
 
   const loadMembers = async () => {
-    console.log('Loading members for team:', team.name);
     try {
       setLoading(true);
       const data = await teamService.getTeamMembers(team.id);
-      console.log('Team members loaded:', data);
       setMembers(data as TeamMemberWithUser[]);
       setError('');
     } catch (err) {
@@ -42,16 +40,13 @@ export function ManageTeamMembersModal({ team, onClose }: ManageTeamMembersModal
   };
 
   useEffect(() => {
-    console.log('ManageTeamMembersModal useEffect triggered');
     loadMembers();
   }, [team.id]);
 
   const handleAddMember = async (employee: { id: string; email: string }) => {
-    console.log('Adding member:', employee.email, 'with role:', newMemberRole);
     try {
       setAddingError('');
       await teamService.addTeamMember(team.id, employee.id, newMemberRole);
-      console.log('Member added successfully');
       await loadMembers();
       setIsAddingMember(false);
       setNewMemberRole('member');
@@ -62,10 +57,8 @@ export function ManageTeamMembersModal({ team, onClose }: ManageTeamMembersModal
   };
 
   const handleRemoveMember = async (userId: string) => {
-    console.log('Removing member:', userId);
     try {
       await teamService.removeTeamMember(team.id, userId);
-      console.log('Member removed successfully');
       await loadMembers();
     } catch (err) {
       console.error('Error removing team member:', err);
@@ -74,10 +67,8 @@ export function ManageTeamMembersModal({ team, onClose }: ManageTeamMembersModal
   };
 
   const handleRoleChange = async (userId: string, newRole: 'member' | 'lead') => {
-    console.log('Updating role for member:', userId, 'to:', newRole);
     try {
       await teamService.updateTeamMemberRole(team.id, userId, newRole);
-      console.log('Role updated successfully');
       await loadMembers();
     } catch (err) {
       console.error('Error updating team member role:', err);

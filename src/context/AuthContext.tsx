@@ -7,6 +7,7 @@ type UserRole = 'customer' | 'employee' | 'admin';
 type AuthContextType = {
   user: User | null;
   userRole: UserRole | null;
+  isEmployee: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{
     error: Error | null;
@@ -23,7 +24,6 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  console.log('AuthProvider rendered');
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(() => {
     // Try to get the role from localStorage on initial render
@@ -33,7 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserRole = useCallback(async (userId: string) => {
-    console.log('fetchUserRole called for userId:', userId);
     try {
       const { data, error } = await supabase
         .from('users')
@@ -47,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      console.log('User role fetched:', data?.role);
       const role = data.role as UserRole;
       // Store the role in localStorage
       localStorage.setItem('userRole', JSON.stringify(role));
@@ -60,21 +58,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const handleAuthStateChange = useCallback(async (session: { user: User } | null) => {
-    console.log('handleAuthStateChange called with session:', session ? 'exists' : 'null');
     setLoading(true);
 
     if (session?.user) {
-      console.log('Setting user and fetching role');
       setUser(session.user);
       // Only fetch role if we don't have it in state
       if (!userRole) {
         await fetchUserRole(session.user.id);
       } else {
-        console.log('Using cached role:', userRole);
         setLoading(false);
       }
     } else {
-      console.log('No user, clearing state');
       setUser(null);
       setUserRole(null);
       localStorage.removeItem('userRole');
@@ -83,14 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchUserRole, userRole]);
 
   useEffect(() => {
-    console.log('AuthProvider useEffect triggered');
     let mounted = true;
 
     async function initializeAuth() {
-      console.log('initializeAuth started');
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        console.log('Session retrieved:', session ? 'exists' : 'null');
         
         if (!mounted) return;
 
@@ -100,7 +91,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!userRole) {
             await fetchUserRole(session.user.id);
           } else {
-            console.log('Using cached role:', userRole);
             setLoading(false);
           }
         } else {
@@ -132,14 +122,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [handleAuthStateChange, fetchUserRole, userRole]);
 
-  useEffect(() => {
-    console.log('Current auth state:', {
-      user: user ? 'exists' : 'null',
-      userRole,
-      loading,
-      timestamp: new Date().toISOString()
-    });
-  }, [user, userRole, loading]);
+  // useEffect(() => {
+  //   console.log('Current auth state:', {
+  //     user: user ? 'exists' : 'null',
+  //     userRole,
+  //     loading,
+  //     timestamp: new Date().toISOString()
+  //   });
+  // }, [user, userRole, loading]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -229,6 +219,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     user,
     userRole,
+    isEmployee: userRole === 'employee' || userRole === 'admin',
     loading,
     signIn,
     signUp,

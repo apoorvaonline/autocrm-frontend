@@ -26,7 +26,7 @@ export function TicketCommunication({ ticketId, onMessageSent, messages }: Props
   const [messageType, setMessageType] = useState<'reply' | 'note'>('reply');
   const [sending, setSending] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
-  const { user } = useAuth();
+  const { isEmployee } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +64,9 @@ export function TicketCommunication({ ticketId, onMessageSent, messages }: Props
           >
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{message.sender.full_name}</span>
+                <span className="font-medium">
+                  {message.sender?.full_name || (message.message_type === 'note' ? 'Internal Note' : 'Support Team')}
+                </span>
                 <span className="text-xs text-gray-500">
                   {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                 </span>
@@ -98,7 +100,7 @@ export function TicketCommunication({ ticketId, onMessageSent, messages }: Props
           >
             Reply
           </Button>
-          {user?.role !== 'customer' && (
+          {isEmployee && (
             <Button
               type="button"
               variant={messageType === 'note' ? 'primary' : 'secondary'}
@@ -123,14 +125,21 @@ export function TicketCommunication({ ticketId, onMessageSent, messages }: Props
           >
             {messageType === 'note' ? 'Add Note' : 'Send Reply'}
           </Button>
-          <Button 
-            variant="tertiary"
-            onClick={() => setShowTemplates(true)}
-          >
-            Use Template
-          </Button>
+          {isEmployee && (
+            <Button 
+              variant="tertiary"
+              onClick={() => setShowTemplates(true)}
+            >
+              Use Template
+            </Button>
+          )}
         </div>
       </form>
+      {showTemplates && (
+      <div>
+        <h2>Templates</h2>
+      </div>
+      )}
     </div>
   );
 } 
