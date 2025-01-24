@@ -23,29 +23,29 @@ interface TeamBreachData {
   compliance_rate: number;
 }
 
-interface TicketData {
-  id: string;
-  created_at: string;
-  first_response_at: string | null;
-  status: string;
-  priority: string;
-  team_id: string;
-  teams: {
-    name: string;
-  } | null;
-}
+// interface TicketData {
+//   id: string;
+//   created_at: string;
+//   first_response_at: string | null;
+//   status: string;
+//   priority: string;
+//   team_id: string;
+//   teams: {
+//     name: string;
+//   } | null;
+// }
 
-interface BreachData {
-  ticket_id: string;
-  breach_type: 'response_time' | 'resolution_time';
-  tickets: {
-    priority: string;
-    team_id: string;
-    teams: {
-      name: string;
-    } | null;
-  };
-}
+// interface BreachData {
+//   ticket_id: string;
+//   breach_type: 'response_time' | 'resolution_time';
+//   tickets: {
+//     priority: string;
+//     team_id: string;
+//     teams: {
+//       name: string;
+//     } | null;
+//   };
+// }
 
 interface SupabaseBreachData {
   ticket_id: string;

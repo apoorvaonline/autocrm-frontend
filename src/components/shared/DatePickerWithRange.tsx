@@ -27,7 +27,7 @@ export function DatePickerWithRange({
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant="outline"
+            variant="tertiary"
             className={cn(
               "w-[300px] justify-start text-left font-normal",
               !date && "text-muted-foreground"

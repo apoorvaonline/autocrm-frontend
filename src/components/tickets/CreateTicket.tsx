@@ -5,7 +5,7 @@ import { Button } from '../shared/Button';
 import { Input } from '../shared/Input';
 import { ticketService } from '../../services/ticketService';
 import { attachmentService } from '../../services/attachmentService';
-import { Loader2, Paperclip, X } from 'lucide-react';
+import { Paperclip, X } from 'lucide-react';
 
 interface FormData {
   subject: string;

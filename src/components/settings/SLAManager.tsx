@@ -189,15 +189,15 @@ export const SLAManager = () => {
     }
   };
 
-  const openCreateModal = () => {
-    setEditingPolicy(undefined);
-    setShowModal(true);
-  };
+  // const openCreateModal = () => {
+  //   setEditingPolicy(undefined);
+  //   setShowModal(true);
+  // };
 
-  const openEditModal = (policy: SLAPolicy) => {
-    setEditingPolicy(policy);
-    setShowModal(true);
-  };
+  // const openEditModal = (policy: SLAPolicy) => {
+  //   setEditingPolicy(policy);
+  //   setShowModal(true);
+  // };
 
   if (!user) return null;
 
@@ -240,7 +240,7 @@ export const SLAManager = () => {
                   <TableCell>{policy.resolution_time_minutes} minutes</TableCell>
                   <TableCell>
                     <Button
-                      variant={policy.is_active ? "outline" : "secondary"}
+                      variant={policy.is_active ? "tertiary" : "secondary"}
                       onClick={() => handleToggleStatus(policy.id, policy.is_active)}
                     >
                       {policy.is_active ? 'Active' : 'Inactive'}
