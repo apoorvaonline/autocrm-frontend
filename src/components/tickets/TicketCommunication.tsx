@@ -37,7 +37,7 @@ export function TicketCommunication({ ticketId, onMessageSent, messages }: Props
       await ticketService.addMessage(ticketId, {
         content: message.trim(),
         message_type: messageType
-      });
+      }, isEmployee);
       setMessage('');
       if (onMessageSent) onMessageSent();
     } catch (error) {

@@ -429,7 +429,7 @@ export const ticketService = {
     return ticket;
   },
 
-  async addMessage(ticketId: string, data: AddMessageDTO) {
+  async addMessage(ticketId: string, data: AddMessageDTO, isEmployee: boolean) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -447,19 +447,21 @@ export const ticketService = {
 
     if (error) throw error;
 
-    // If this is the first response and ticket is in 'new' status, update it
-    const { data: ticket } = await supabase
-      .from("tickets")
-      .select("status, first_response_at")
-      .eq("id", ticketId)
-      .single();
+    // Only check and update ticket status if the sender is an employee/admin
+    if (isEmployee) {
+      const { data: ticket } = await supabase
+        .from("tickets")
+        .select("status, first_response_at")
+        .eq("id", ticketId)
+        .single();
 
-    if (
-      ticket?.status === "new" &&
-      !ticket.first_response_at &&
-      data.message_type === "reply"
-    ) {
-      await this.updateTicketStatus(ticketId, "open");
+      if (
+        ticket?.status === "new" &&
+        !ticket.first_response_at &&
+        data.message_type === "reply"
+      ) {
+        await this.updateTicketStatus(ticketId, "open");
+      }
     }
   },
 };
